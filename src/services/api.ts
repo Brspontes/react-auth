@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios'
-import { parseCookies, setCookie } from 'nookies'
+import { destroyCookie, parseCookies, setCookie } from 'nookies'
 
 let cookies = parseCookies()
 let isRefreshing = false
@@ -65,7 +65,9 @@ api.interceptors.response.use(reponse => {
         })
       })
     } else {
-      //deslogar 
+      destroyCookie(undefined, 'nextauth.token')
+      destroyCookie(undefined, 'nextauth.refresh')
     }
   }
+  return Promise.reject(error)
 })
