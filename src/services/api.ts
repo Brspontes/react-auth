@@ -83,7 +83,7 @@ export function setupApiClient (ctx = undefined) {
   
           Router.push('/')
         } else {
-
+          return Promise.reject(new AuthTokenError())
         }
       }
     }
