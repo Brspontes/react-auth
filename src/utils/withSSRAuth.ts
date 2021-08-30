@@ -1,12 +1,19 @@
 import { GetServerSideProps, GetServerSidePropsContext, GetServerSidePropsResult } from "next"
 import { destroyCookie, parseCookies } from "nookies"
 import { AuthTokenError } from "../errors/authTokenError"
+import decode from "jwt-decode"
 
-export function withSSRAuth<T>(fn: GetServerSideProps<T>): GetServerSideProps {
+type withSSROptions = {
+  permissions?: string[]
+  roles?: string[]
+}
+
+export function withSSRAuth<T>(fn: GetServerSideProps<T>, options: withSSROptions): GetServerSideProps {
   return async (ctx: GetServerSidePropsContext): Promise<GetServerSidePropsResult<T>> => {
     const cookies = parseCookies(ctx)
+    const token = cookies['nextauth.token']
 
-    if (!cookies['nextauth.token']) {
+    if (!token) {
       return {
         redirect: {
           destination: '/dashboard',
@@ -14,6 +21,11 @@ export function withSSRAuth<T>(fn: GetServerSideProps<T>): GetServerSideProps {
         }
       }
     }
+
+    const user = decode(token)
+
+    console.log(user)
+
     try {
       return await fn(ctx)
     } catch (error) {
